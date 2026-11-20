@@ -90,3 +90,75 @@ AI-Powered Recruitment System
         server.send_message(message)
 
     return True
+
+def send_qualification_email(
+    recipient_email,
+    candidate_name,
+    job_title,
+    pdf_bytes,
+    pdf_filename
+):
+    """Send qualification confirmation with PDF attachment."""
+
+    smtp_email = os.getenv("SMTP_EMAIL")
+    smtp_password = os.getenv("SMTP_PASSWORD")
+    smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    smtp_port = int(os.getenv("SMTP_PORT", "465"))
+
+    if not smtp_email or not smtp_password:
+        raise ValueError("SMTP credentials are missing.")
+
+    if not recipient_email:
+        raise ValueError("Candidate email address is missing.")
+
+    message = EmailMessage()
+
+    message["Subject"] = (
+        f"Congratulations! You Qualified - {job_title}"
+    )
+
+    message["From"] = smtp_email
+    message["To"] = recipient_email
+
+    message.set_content(
+        f"""
+Hello {candidate_name},
+
+Congratulations!
+
+Your application for the position of {job_title}
+has successfully passed the initial AI screening stage.
+
+You have qualified for the next stage of the recruitment
+process.
+
+Please find your qualification confirmation PDF attached.
+
+The recruitment team may contact you regarding the
+next steps.
+
+Best wishes,
+TalentLens
+AI-Powered Recruitment System
+"""
+    )
+
+    message.add_attachment(
+        pdf_bytes,
+        maintype="application",
+        subtype="pdf",
+        filename=pdf_filename
+    )
+
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP_SSL(
+        smtp_host,
+        smtp_port,
+        context=context
+    ) as server:
+
+        server.login(smtp_email, smtp_password)
+        server.send_message(message)
+
+    return True

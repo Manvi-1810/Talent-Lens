@@ -1,22 +1,17 @@
 
 import { useEffect, useState } from "react";
 import {
-  BrainCircuit,
   BriefcaseBusiness,
   MapPin,
   CalendarDays,
-  Clock3,
   Building2,
   FileText,
   RefreshCw,
   ClipboardList,
-  CheckCircle2,
   AlertCircle,
+  CheckCircle2,
   XCircle,
-  GraduationCap,
-  Mail,
-  ExternalLink,
-  BookOpen,
+  Clock,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -66,49 +61,31 @@ export default function MyApplicationsPage() {
     });
   }
 
-  function formatStatus(status) {
-    if (!status) return "Unknown";
+  function getSelectionStatus(status) {
+    switch (status) {
+      case "qualified":
+        return {
+          label: "Selected",
+          className: "application-status-qualified",
+          Icon: CheckCircle2,
+        };
 
-    return status
-      .replaceAll("_", " ")
-      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+      case "not_selected":
+        return {
+          label: "Not Selected",
+          className: "application-status-not-selected",
+          Icon: XCircle,
+        };
+
+      case "submitted":
+      default:
+        return {
+          label: "Under Review",
+          className: "application-status-pending",
+          Icon: Clock,
+        };
+    }
   }
-
-  function getStatusClass(status) {
-    const normalized = (status || "").toLowerCase();
-
-    if (["submitted", "under_review"].includes(normalized)) {
-      return "submitted";
-    }
-
-    if (["qualified", "selected"].includes(normalized)) {
-      return "qualified";
-    }
-
-    if (["not_selected", "rejected"].includes(normalized)) {
-      return "not-selected";
-    }
-
-    return "default";
-  }
-
-  const qualifiedCount = applications.filter((app) =>
-    ["qualified", "selected"].includes(
-      (app.status || "").toLowerCase()
-    )
-  ).length;
-
-  const notSelectedCount = applications.filter((app) =>
-    ["not_selected", "rejected"].includes(
-      (app.status || "").toLowerCase()
-    )
-  ).length;
-
-  const pendingCount = applications.filter((app) =>
-    ["submitted", "under_review"].includes(
-      (app.status || "").toLowerCase()
-    )
-  ).length;
 
   return (
     <div className="my-applications-page shared-applications-page">
@@ -122,9 +99,8 @@ export default function MyApplicationsPage() {
           <h1>My Applications</h1>
 
           <p>
-            Track your job applications, review AI screening
-            decisions, and explore recommendations to improve
-            your career readiness.
+            Keep track of the jobs you have applied for
+            and review your application details.
           </p>
         </section>
 
@@ -137,40 +113,9 @@ export default function MyApplicationsPage() {
 
             <div>
               <span>Total Applications</span>
-              <strong>{loading ? "—" : applications.length}</strong>
-            </div>
-          </div>
-
-          <div className="application-summary-card">
-            <span className="application-summary-icon">
-              <Clock3 size={22} />
-            </span>
-
-            <div>
-              <span>Pending Screening</span>
-              <strong>{loading ? "—" : pendingCount}</strong>
-            </div>
-          </div>
-
-          <div className="application-summary-card">
-            <span className="application-summary-icon">
-              <CheckCircle2 size={22} />
-            </span>
-
-            <div>
-              <span>Qualified</span>
-              <strong>{loading ? "—" : qualifiedCount}</strong>
-            </div>
-          </div>
-
-          <div className="application-summary-card">
-            <span className="application-summary-icon">
-              <XCircle size={22} />
-            </span>
-
-            <div>
-              <span>Not Selected</span>
-              <strong>{loading ? "—" : notSelectedCount}</strong>
+              <strong>
+                {loading ? "—" : applications.length}
+              </strong>
             </div>
           </div>
         </section>
@@ -255,38 +200,10 @@ export default function MyApplicationsPage() {
             <div className="applications-list">
               {applications.map((application) => {
                 const job = application.job;
-
-                const status = (
-                  application.status || ""
-                ).toLowerCase();
-
-                const isQualified = [
-                  "qualified",
-                  "selected",
-                ].includes(status);
-
-                const isNotSelected = [
-                  "not_selected",
-                  "rejected",
-                ].includes(status);
-
-                const isPending = [
-                  "submitted",
-                  "under_review",
-                ].includes(status);
-
-                const matchedSkills =
-                  application.matched_skills || [];
-
-                const missingSkills =
-                  application.missing_skills || [];
-
-                const recommendations =
-                  application.skill_gap_recommendations || [];
-
-                const hasScore =
-                  application.match_score !== null &&
-                  application.match_score !== undefined;
+                const selection = getSelectionStatus(
+                  application.status
+                );
+                const SelectionIcon = selection.Icon;
 
                 return (
                   <article
@@ -299,12 +216,8 @@ export default function MyApplicationsPage() {
                         <Building2 size={24} />
                       </div>
 
-                      <span
-                        className={`application-status ${getStatusClass(
-                          status
-                        )}`}
-                      >
-                        {formatStatus(status)}
+                      <span className="application-status submitted">
+                        Application Submitted
                       </span>
                     </div>
 
@@ -342,83 +255,20 @@ export default function MyApplicationsPage() {
                           {formatDate(application.applied_at)}
                         </strong>
                       </div>
-
-                      <div>
-                        <span>
-                          <BrainCircuit size={16} />
-                          AI Match Score
-                        </span>
-
-                        <strong>
-                          {hasScore
-                            ? `${application.match_score}%`
-                            : "Pending"}
-                        </strong>
-                      </div>
                     </div>
 
-                    {/* Compatibility progress */}
-                    {hasScore && (
-                      <div className="application-match-progress">
-                        <div className="application-match-progress-label">
-                          <span>Skill compatibility</span>
-                          <strong>
-                            {application.match_score}%
-                          </strong>
-                        </div>
+                    {/* Selection decision */}
+                    <div className="application-divider" />
 
-                        <div className="application-match-track">
-                          <div
-                            className="application-match-fill"
-                            style={{
-                              width: `${Math.min(
-                                100,
-                                Math.max(
-                                  0,
-                                  Number(application.match_score)
-                                )
-                              )}%`,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    )}
+                    <div className="application-selection">
+                      <strong>Selection Decision</strong>
 
-                    {/* AI screening decision */}
-                    <div
-                      className={`application-screening-result ${
-                        isQualified
-                          ? "screening-qualified"
-                          : isNotSelected
-                          ? "screening-not-selected"
-                          : "screening-pending"
-                      }`}
-                    >
-                      {isQualified ? (
-                        <CheckCircle2 size={21} />
-                      ) : isNotSelected ? (
-                        <XCircle size={21} />
-                      ) : (
-                        <Clock3 size={21} />
-                      )}
-
-                      <div>
-                        <strong>
-                          {isQualified
-                            ? "Qualified for the next round"
-                            : isNotSelected
-                            ? "Not selected for this position"
-                            : "AI screening pending"}
-                        </strong>
-
-                        <p>
-                          {isQualified
-                            ? "Congratulations! You have met the AI screening threshold."
-                            : isNotSelected
-                            ? "Your current skill match is below the required screening threshold. Review your learning recommendations."
-                            : "Your application is awaiting AI screening."}
-                        </p>
-                      </div>
+                      <span
+                        className={`application-status ${selection.className}`}
+                      >
+                        <SelectionIcon size={15} />
+                        {selection.label}
+                      </span>
                     </div>
 
                     {/* Required skills */}
@@ -438,143 +288,6 @@ export default function MyApplicationsPage() {
                           </div>
                         </div>
                       )}
-
-                    {/* Matched skills */}
-                    {matchedSkills.length > 0 && (
-                      <div className="application-skill-section">
-                        <strong className="application-skill-heading">
-                          <CheckCircle2 size={17} />
-                          Matched Skills
-                        </strong>
-
-                        <div className="application-skill-tags matched-tags">
-                          {matchedSkills.map((skill, index) => (
-                            <span key={`${skill}-${index}`}>
-                              {skill}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Missing skills */}
-                    {missingSkills.length > 0 && (
-                      <div className="application-skill-section">
-                        <strong className="application-skill-heading">
-                          <AlertCircle size={17} />
-                          Skills to Improve
-                        </strong>
-
-                        <div className="application-skill-tags missing-tags">
-                          {missingSkills.map((skill, index) => (
-                            <span key={`${skill}-${index}`}>
-                              {skill}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Skill gap report */}
-                    {isNotSelected && (
-                      <div className="skill-gap-panel">
-                        <div className="skill-gap-panel-heading">
-                          <span className="skill-gap-icon">
-                            <GraduationCap size={23} />
-                          </span>
-
-                          <div>
-                            <h4>Your Skill Gap Report</h4>
-                            <p>
-                              Learning resources to help strengthen
-                              your missing skills.
-                            </p>
-                          </div>
-                        </div>
-
-                        {application.skill_gap_report_path && (
-                          <p className="skill-gap-report-generated">
-                            <FileText size={16} />
-                            Your personalized skill-gap PDF report
-                            has been generated.
-                          </p>
-                        )}
-
-                        {recommendations.length > 0 ? (
-                          <div className="skill-recommendation-list">
-                            {recommendations.map(
-                              (recommendation, index) => (
-                                <div
-                                  className="skill-recommendation-card"
-                                  key={`${recommendation.skill}-${index}`}
-                                >
-                                  <div className="recommendation-title-row">
-                                    <BookOpen size={19} />
-                                    <strong>
-                                      {recommendation.course_name}
-                                    </strong>
-                                  </div>
-
-                                  <p>
-                                    {recommendation.description}
-                                  </p>
-
-                                  <div className="recommendation-meta">
-                                    <span>
-                                      Skill: {recommendation.skill}
-                                    </span>
-
-                                    <span>
-                                      Level: {recommendation.level}
-                                    </span>
-                                  </div>
-
-                                  <div className="recommendation-platform">
-                                    Platform: {recommendation.platform}
-                                  </div>
-
-                                  {recommendation.url && (
-                                    <a
-                                      href={recommendation.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="recommendation-link"
-                                    >
-                                      Explore course
-                                      <ExternalLink size={15} />
-                                    </a>
-                                  )}
-                                </div>
-                              )
-                            )}
-                          </div>
-                        ) : (
-                          <p className="recommendation-empty">
-                            Learning recommendations will appear
-                            here when available.
-                          </p>
-                        )}
-
-                        {/* Email confirmation */}
-                        {application.skill_gap_email_sent && (
-                          <div className="application-email-confirmation">
-                            <CheckCircle2 size={17} />
-                            <span>
-                              Your personalized skill-gap report
-                              has been emailed to your registered
-                              email address.
-                            </span>
-                          </div>
-                        )}
-
-                        {!application.skill_gap_email_sent && (
-                          <div className="skill-gap-email-pending">
-                            <Mail size={17} />
-                            Email delivery has not yet been confirmed.
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </article>
                 );
               })}

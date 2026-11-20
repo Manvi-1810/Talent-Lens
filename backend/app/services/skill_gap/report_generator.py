@@ -371,3 +371,196 @@ def generate_skill_gap_pdf(
     buffer.seek(0)
 
     return buffer
+    
+def generate_qualification_pdf(
+    candidate_name,
+    candidate_email,
+    job_title,
+    company_name,
+    match_score,
+    threshold=85.0
+):
+    """Generate a qualification confirmation PDF."""
+
+    buffer = BytesIO()
+
+    document = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=18 * mm,
+        leftMargin=18 * mm,
+        topMargin=22 * mm,
+        bottomMargin=22 * mm
+    )
+
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle(
+        "QualificationTitle",
+        parent=styles["Title"],
+        fontName="Helvetica-Bold",
+        fontSize=24,
+        leading=30,
+        textColor=colors.HexColor("#166534"),
+        alignment=TA_CENTER,
+        spaceAfter=12
+    )
+
+    heading_style = ParagraphStyle(
+        "QualificationHeading",
+        parent=styles["Heading2"],
+        fontSize=14,
+        textColor=colors.HexColor("#243B64"),
+        spaceBefore=15,
+        spaceAfter=8
+    )
+
+    body_style = ParagraphStyle(
+        "QualificationBody",
+        parent=styles["BodyText"],
+        fontSize=10,
+        leading=17,
+        textColor=colors.HexColor("#334155"),
+        spaceAfter=8
+    )
+
+    subtitle_style = ParagraphStyle(
+        "QualificationSubtitle",
+        parent=styles["Normal"],
+        fontSize=11,
+        leading=17,
+        alignment=TA_CENTER,
+        textColor=colors.HexColor("#64748B")
+    )
+
+    story = []
+
+    story.append(Paragraph("TALENTLENS", title_style))
+
+    story.append(
+        Paragraph(
+            "CANDIDATE QUALIFICATION CERTIFICATE",
+            subtitle_style
+        )
+    )
+
+    story.append(Spacer(1, 15 * mm))
+
+    story.append(
+        HRFlowable(
+            width="100%",
+            thickness=1,
+            color=colors.HexColor("#DCE4EF")
+        )
+    )
+
+    story.append(Spacer(1, 10 * mm))
+
+    story.append(
+        Paragraph("Congratulations!", title_style)
+    )
+
+    story.append(
+        Paragraph(
+            "You have successfully met the initial AI screening "
+            "requirement for the position listed below.",
+            body_style
+        )
+    )
+
+    story.append(
+        Paragraph("Candidate Information", heading_style)
+    )
+
+    candidate_data = [
+        ["Candidate Name", escape(str(candidate_name))],
+        ["Email Address", escape(str(candidate_email))],
+        ["Job Position", escape(str(job_title))],
+        ["Company", escape(str(company_name))]
+    ]
+
+    candidate_table = Table(
+        candidate_data,
+        colWidths=[48 * mm, 115 * mm]
+    )
+
+    candidate_table.setStyle(
+        TableStyle([
+            ("BACKGROUND", (0, 0), (0, -1),
+             colors.HexColor("#F1F5F9")),
+            ("GRID", (0, 0), (-1, -1), 0.5,
+             colors.HexColor("#E2E8F0")),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("LEFTPADDING", (0, 0), (-1, -1), 9),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 9),
+            ("TOPPADDING", (0, 0), (-1, -1), 10),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 10)
+        ])
+    )
+
+    story.append(candidate_table)
+
+    story.append(
+        Paragraph("Screening Result", heading_style)
+    )
+
+    story.append(
+        Paragraph(
+            f"AI Matching Score: "
+            f"<b>{float(match_score):.2f}%</b>",
+            body_style
+        )
+    )
+
+    story.append(
+        Paragraph(
+            f"Required Screening Threshold: "
+            f"<b>{float(threshold):.2f}%</b>",
+            body_style
+        )
+    )
+
+    story.append(
+        Paragraph(
+            "Your application has qualified for the next stage "
+            "of the recruitment process. The recruitment team "
+            "may contact you regarding further selection steps.",
+            body_style
+        )
+    )
+
+    story.append(Spacer(1, 12 * mm))
+
+    story.append(
+        HRFlowable(
+            width="100%",
+            thickness=0.7,
+            color=colors.HexColor("#DCE4EF")
+        )
+    )
+
+    story.append(Spacer(1, 5 * mm))
+
+    story.append(
+        Paragraph(
+            "This document confirms qualification in the initial "
+            "AI-based screening stage. It does not represent a "
+            "final job offer or guarantee of employment.",
+            subtitle_style
+        )
+    )
+
+    story.append(Spacer(1, 8 * mm))
+
+    story.append(
+        Paragraph(
+            "TalentLens | AI-Powered Recruitment System",
+            subtitle_style
+        )
+    )
+
+    document.build(story)
+
+    buffer.seek(0)
+
+    return buffer

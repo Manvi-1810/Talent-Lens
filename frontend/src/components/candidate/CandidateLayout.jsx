@@ -54,11 +54,7 @@ export default function CandidateLayout() {
       icon: FileText,
       path: "/candidate/resume",
     },
-    {
-      label: "AI Skill Matching",
-      icon: BrainCircuit,
-      path: "/candidate/matching",
-    },
+    
     {
       label: "My Applications",
       icon: ClipboardList,

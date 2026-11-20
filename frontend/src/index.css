@@ -5861,3 +5861,142 @@ p {
     padding: 30px 0 45px;
   }
 }
+
+/* ==========================================
+   MY APPLICATIONS PAGE - UI POLISH
+   Paste this section at the bottom of your CSS
+========================================== */
+
+.my-applications-page {
+  background: #f5f7fc;
+}
+
+.my-applications-page .application-summary-card,
+.my-applications-page .application-card,
+.my-applications-page .applications-state-card {
+  border: 1px solid #e7edf5;
+  box-shadow: 0 5px 20px rgba(23, 35, 60, 0.045);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.my-applications-page .application-summary-card:hover,
+.my-applications-page .application-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(23, 35, 60, 0.08);
+}
+
+.my-applications-page .application-summary-card {
+  border-radius: 17px;
+  padding: 25px;
+}
+
+.my-applications-page .application-summary-icon {
+  border-radius: 14px;
+}
+
+.my-applications-page .application-summary-card strong {
+  font-size: 27px;
+  font-weight: 750;
+}
+
+.my-applications-page .applications-hero h1 {
+  font-weight: 750;
+  letter-spacing: -1.4px;
+}
+
+.my-applications-page .applications-section-heading h2 {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.my-applications-page .application-card {
+  border-radius: 18px;
+  padding: 28px;
+}
+
+.my-applications-page .application-card h3 {
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.my-applications-page .application-company-icon {
+  border-radius: 14px;
+}
+
+.my-applications-page .application-status {
+  padding: 8px 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.my-applications-page .application-divider {
+  background: #edf1f6;
+}
+
+.my-applications-page .application-details-grid strong,
+.my-applications-page .application-required-skills > strong {
+  color: #34445e;
+  font-weight: 700;
+}
+
+.my-applications-page .applications-state-card {
+  border-radius: 18px;
+  padding: 60px 22px;
+}
+
+.my-applications-page .application-ai-note {
+  border: 1px solid #dce9fa;
+  border-radius: 13px;
+}
+
+@media (max-width: 700px) {
+  .my-applications-page .application-card {
+    padding: 20px;
+  }
+
+  .my-applications-page .application-summary-card {
+    padding: 19px;
+  }
+}
+
+/* NOT SELECTED STATUS - MY APPLICATIONS */
+
+.my-applications-page .application-status-not-selected,
+.my-applications-page .application-status.rejected {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 15px;
+  color: #b42318;
+  background: #fff1f0;
+  border: 1px solid #fecdca;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.my-applications-page .application-status-not-selected::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: #d92d20;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Spacing between decision label and status badge */
+
+.my-applications-page .application-decision {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.my-applications-page .application-status-not-selected {
+  margin-left: 8px;
+}

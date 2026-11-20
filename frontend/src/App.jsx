@@ -112,7 +112,7 @@ export default function App() {
         <Route path="dashboard" element={<CandidateDashboard />} />
         <Route path="jobs" element={<FindJobsPage />} />
         <Route path="resume" element={<MyResumePage />} />
-        <Route path="matching" element={<AISkillMatchingPage />} />
+       
         <Route path="applications" element={<MyApplicationsPage />} />
         <Route path="profile" element={<MyProfilePage />} />
         <Route path="settings" element={<CandidateSettingsPage />} />

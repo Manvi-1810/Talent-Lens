@@ -1,24 +1,21 @@
+
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.extensions import db
 from app.models import User, Job, Application
+from app.models.resume import Resume
 from app.models.notification import Notification
 
-from app.services.skill_gap.recommendation_service import (
-    generate_skill_recommendations
-)
-
+from app.services.matching.screening_service import screen_application
 
 applications_bp = Blueprint("applications", __name__)
 
 
-# Get all applications submitted by the logged-in candidate
 @applications_bp.get("/my")
 @jwt_required()
 def get_my_applications():
     user_id = get_jwt_identity()
-
     user = db.session.get(User, user_id)
 
     if not user:
@@ -26,12 +23,6 @@ def get_my_applications():
             "status": "error",
             "message": "User not found"
         }), 404
-
-    if user.role != "candidate":
-        return jsonify({
-            "status": "error",
-            "message": "Only candidates can view their applications"
-        }), 403
 
     applications = (
         Application.query
@@ -45,26 +36,25 @@ def get_my_applications():
     for application in applications:
         job = db.session.get(Job, application.job_id)
 
-        missing_skills = application.missing_skills or []
+        if not job:
+            continue
 
-        recommendations = []
-
-        if (
-            application.status == "not_selected"
-            and missing_skills
-        ):
-            recommendations = generate_skill_recommendations(
-                missing_skills
-            )
-
-        application_data = application.to_dict()
-
-        application_data.update({
-            "job": job.to_dict() if job else None,
-            "skill_gap_recommendations": recommendations
+        results.append({
+            "id": application.id,
+            "status": application.status,
+            "applied_at": (
+                application.applied_at.isoformat()
+                if application.applied_at else None
+            ),
+            "job": {
+                "id": job.id,
+                "title": job.title,
+                "company_name": job.company_name,
+                "location": job.location,
+                "employment_type": job.employment_type,
+                "required_skills": job.required_skills or []
+            }
         })
-
-        results.append(application_data)
 
     return jsonify({
         "status": "success",
@@ -73,29 +63,24 @@ def get_my_applications():
     }), 200
 
 
-# Submit a new job application
 @applications_bp.post("/")
 @jwt_required()
 def apply_for_job():
     user_id = get_jwt_identity()
-
     user = db.session.get(User, user_id)
 
     if not user:
         return jsonify({
+            "status": "error",
             "message": "User not found"
         }), 404
-
-    if user.role != "candidate":
-        return jsonify({
-            "message": "Only candidates can apply for jobs"
-        }), 403
 
     data = request.get_json() or {}
     job_id = data.get("job_id")
 
     if not job_id:
         return jsonify({
+            "status": "error",
             "message": "Job ID is required"
         }), 400
 
@@ -103,6 +88,7 @@ def apply_for_job():
 
     if not job or job.status != "active":
         return jsonify({
+            "status": "error",
             "message": "Job not found or inactive"
         }), 404
 
@@ -113,18 +99,34 @@ def apply_for_job():
 
     if existing_application:
         return jsonify({
+            "status": "error",
             "message": "You have already applied for this job"
         }), 409
 
+    # Get the candidate's latest uploaded resume
+    latest_resume = (
+        Resume.query
+        .filter_by(candidate_id=user.id)
+        .order_by(Resume.uploaded_at.desc())
+        .first()
+    )
+
+    if not latest_resume:
+        return jsonify({
+            "status": "error",
+            "message": "Please upload your resume before applying for this job."
+        }), 400
+
+    # Create application
     application = Application(
         candidate_id=user.id,
         job_id=job.id,
+        resume_path=latest_resume.file_path,
         status="submitted"
     )
 
     db.session.add(application)
 
-    # Create notification for the candidate
     notification = Notification(
         user_id=user.id,
         title="Application submitted",
@@ -139,12 +141,31 @@ def apply_for_job():
 
     db.session.add(notification)
 
-    # Save application and notification together
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({
+            "status": "error",
+            "message": "Unable to submit your application. Please try again."
+        }), 500
+
+    # Automatically screen the application.
+    # Screening/report/email failures should not undo the saved application.
+    try:
+        screen_application(
+            application=application,
+            user=user,
+            job=job,
+            resume=latest_resume
+        )
+    except Exception:
+        db.session.rollback()
 
     return jsonify({
         "status": "success",
-        "message": "Application submitted successfully",
-        "application": application.to_dict(),
-        "notification": notification.to_dict()
+        "message": (
+            "Application submitted successfully! "
+            "You can track your application in My Applications."
+        )
     }), 201
