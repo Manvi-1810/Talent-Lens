@@ -11,7 +11,6 @@ import FindJobsPage from "./pages/candidate/FindJobsPage";
 import MyApplicationsPage from "./pages/candidate/MyApplicationsPage";
 import MyResumePage from "./pages/candidate/MyResumePage";
 import MyProfilePage from "./pages/candidate/MyProfilePage";
-import AISkillMatchingPage from "./pages/candidate/AISkillMatchingPage";
 import CandidateSettingsPage from "./pages/candidate/CandidateSettingsPage";
 
 // Recruiter pages
