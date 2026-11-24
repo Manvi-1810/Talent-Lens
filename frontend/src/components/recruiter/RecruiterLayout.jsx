@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   BriefcaseBusiness,
   Users,
-  ClipboardList,
   BrainCircuit,
   UserRound,
   Settings,
@@ -54,11 +53,6 @@ export default function RecruiterLayout() {
       label: "Applicants",
       icon: Users,
       path: "/recruiter/applicants",
-    },
-    {
-      label: "Screening Results",
-      icon: ClipboardList,
-      path: "/recruiter/screening",
     },
     {
       label: "AI Interview Results",

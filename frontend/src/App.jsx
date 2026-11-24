@@ -16,7 +16,6 @@ import CandidateSettingsPage from "./pages/candidate/CandidateSettingsPage";
 // Recruiter pages
 import ManageJobsPage from "./pages/recruiter/ManageJobsPage";
 import ApplicantsPage from "./pages/recruiter/ApplicantsPage";
-import ScreeningResultsPage from "./pages/recruiter/ScreeningResultsPage";
 import AIInterviewResultsPage from "./pages/recruiter/AIInterviewResultsPage";
 import RecruiterProfilePage from "./pages/recruiter/RecruiterProfilePage";
 import RecruiterSettingsPage from "./pages/recruiter/RecruiterSettingsPage";
@@ -72,25 +71,6 @@ function RecruiterRoute({ children }) {
   return children;
 }
 
-// Recruiter dashboard placeholder
-
-// Temporary pages until we build their complete functionality
-function RecruiterPlaceholder({ title }) {
-  return (
-    <section>
-      <span style={{ color: "#285bb8", fontSize: 11, fontWeight: 750 }}>
-        RECRUITER WORKSPACE
-      </span>
-      <h1 style={{ color: "#172b49", fontSize: 26 }}>
-        {title}
-      </h1>
-      <p style={{ color: "#718096", fontSize: 13 }}>
-        This page will be implemented next.
-      </p>
-    </section>
-  );
-}
-
 export default function App() {
   return (
     <Routes>
@@ -111,7 +91,6 @@ export default function App() {
         <Route path="dashboard" element={<CandidateDashboard />} />
         <Route path="jobs" element={<FindJobsPage />} />
         <Route path="resume" element={<MyResumePage />} />
-       
         <Route path="applications" element={<MyApplicationsPage />} />
         <Route path="profile" element={<MyProfilePage />} />
         <Route path="settings" element={<CandidateSettingsPage />} />
@@ -127,39 +106,12 @@ export default function App() {
           </RecruiterRoute>
         }
       >
-        <Route
-  path="dashboard"
-  element={<RecruiterDashboardPage />}
-/>
-        <Route
-          path="jobs"
-          element={<ManageJobsPage />}
-        />
-
-        <Route
-          path="applicants"
-          element={<ApplicantsPage />}
-        />
-
-        <Route
-  path="screening"
-  element={<ScreeningResultsPage />}
-/>
-
-        <Route
-  path="interviews"
-  element={<AIInterviewResultsPage />}
-/>
-
-        <Route
-  path="profile"
-  element={<RecruiterProfilePage />}
-/>
-        <Route
-  path="settings"
-  element={<RecruiterSettingsPage />}
-/>
-
+        <Route path="dashboard" element={<RecruiterDashboardPage />} />
+        <Route path="jobs" element={<ManageJobsPage />} />
+        <Route path="applicants" element={<ApplicantsPage />} />
+        <Route path="interviews" element={<AIInterviewResultsPage />} />
+        <Route path="profile" element={<RecruiterProfilePage />} />
+        <Route path="settings" element={<RecruiterSettingsPage />} />
         <Route index element={<Navigate to="dashboard" replace />} />
       </Route>
 

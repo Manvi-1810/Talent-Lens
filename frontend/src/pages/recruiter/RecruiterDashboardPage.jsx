@@ -7,7 +7,6 @@ import {
   XCircle,
   Clock3,
   RefreshCw,
-  TrendingUp,
   BrainCircuit,
 } from "lucide-react";
 import api from "../../services/api";
@@ -32,19 +31,25 @@ export default function RecruiterDashboardPage() {
       setError("");
 
       const response = await api.get("/recruiter/dashboard");
+      const dashboard = response.data.dashboard;
+
+      if (!dashboard) {
+        throw new Error("Dashboard data not found.");
+      }
 
       setStats({
-        total_jobs: response.data.total_jobs ?? 0,
-        active_jobs: response.data.active_jobs ?? 0,
-        inactive_jobs: response.data.inactive_jobs ?? 0,
-        total_applicants: response.data.total_applicants ?? 0,
-        qualified: response.data.qualified ?? 0,
-        not_selected: response.data.not_selected ?? 0,
-        pending_screening: response.data.pending_screening ?? 0,
+        total_jobs: dashboard.total_jobs ?? 0,
+        active_jobs: dashboard.active_jobs ?? 0,
+        inactive_jobs: dashboard.inactive_jobs ?? 0,
+        total_applicants: dashboard.total_applicants ?? 0,
+        qualified: dashboard.qualified_candidates ?? 0,
+        not_selected: dashboard.not_qualified_candidates ?? 0,
+        pending_screening: dashboard.pending_screening ?? 0,
       });
     } catch (err) {
       setError(
         err.response?.data?.message ||
+          err.message ||
           "Unable to load dashboard statistics."
       );
     } finally {
@@ -188,7 +193,7 @@ export default function RecruiterDashboardPage() {
             alignItems: "center",
             gap: 7,
             fontWeight: 650,
-            cursor: "pointer",
+            cursor: loading ? "not-allowed" : "pointer",
           }}
         >
           <RefreshCw size={15} />
@@ -284,7 +289,7 @@ export default function RecruiterDashboardPage() {
         })}
       </div>
 
-      {/* AI screening overview */}
+      {/* AI Screening Overview */}
       <div
         style={{
           background: "#fff",

@@ -29,7 +29,7 @@ export default function AIInterviewResultsPage() {
       setLoading(true);
       setError("");
 
-      const response = await api.get("/recruiter/interviews");
+     const response = await api.get("/recruiter/interview-results");
 
       setInterviews(response.data.interview_results || []);
     } catch (err) {
